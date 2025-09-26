@@ -120,6 +120,28 @@ const Contact = () => {
               </CardContent>
             </Card>
 
+            {/* Prise de rendez-vous Calendly */}
+            <Card className="shadow-card border-0">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-secondary">
+                  <Calendar className="w-5 h-5" />
+                  Planifier un rendez-vous
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="w-full">
+                  <iframe 
+                    src="https://calendly.com/ezechielkouame87/nouvelle-reunion"
+                    width="100%"
+                    height="500"
+                    frameBorder="0"
+                    className="rounded-lg"
+                    title="Planifier un rendez-vous avec Esechiel Kouame"
+                  ></iframe>
+                </div>
+              </CardContent>
+            </Card>
+
           </div>
 
           {/* Formulaire de contact */}
