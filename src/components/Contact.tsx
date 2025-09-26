@@ -129,15 +129,20 @@ const Contact = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="w-full">
-                  <iframe 
-                    src="https://calendly.com/ezechielkouame87/nouvelle-reunion"
-                    width="100%"
-                    height="500"
-                    frameBorder="0"
-                    className="rounded-lg"
-                    title="Planifier un rendez-vous avec Esechiel Kouame"
-                  ></iframe>
+                <div className="text-center">
+                  <p className="text-muted-foreground mb-6">
+                    Réservez un créneau avec moi en toute simplicité via Calendly.
+                  </p>
+                  <Button
+                    onClick={() => {
+                      // @ts-ignore - Calendly is loaded via external script
+                      window.Calendly?.initPopupWidget({url: 'https://calendly.com/ezechielkouame87/nouvelle-reunion'});
+                    }}
+                    className="bg-secondary hover:bg-secondary/80 text-secondary-foreground shadow-card"
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Réserver un rendez-vous
+                  </Button>
                 </div>
               </CardContent>
             </Card>
