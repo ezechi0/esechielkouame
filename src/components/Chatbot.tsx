@@ -1,167 +1,180 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from 'react';
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Bot, User, Minimize2, Maximize2 } from "lucide-react";
-
-interface Message {
-  id: number;
-  text: string;
-  sender: 'user' | 'bot';
-  timestamp: Date;
-}
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      text: "Salut ! Je suis l'assistant IA d'Esechiel. Pose-moi tes questions sur ses compétences, projets ou services !",
-      sender: 'bot',
-      timestamp: new Date()
-    }
+  const [messages, setMessages] = useState([
+    { role: 'bot', text: '👋 Salut ! Je suis l\'assistant IA d\'Esechiel. Comment puis-je vous aider aujourd\'hui ?' }
   ]);
-  const [inputValue, setInputValue] = useState("");
+  const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
+  const quickQuestions = [
+    "Quels sont vos services ?",
+    "Tarifs et devis",
+    "Disponibilité pour projet",
+    "Technologies utilisées"
+  ];
+
   const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
-
-    const userMessage: Message = {
-      id: messages.length + 1,
-      text: inputValue,
-      sender: 'user',
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue("");
+    if (!input.trim()) return;
+    
+    const userMessage = input.trim();
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
     setIsTyping(true);
 
-    // Simulate bot response (will be replaced with actual GPT-4 integration)
+    // Simulate API call - replace with real GPT-4 integration
     setTimeout(() => {
-      const botResponse: Message = {
-        id: messages.length + 2,
-        text: "Merci pour ta question ! Pour l'instant, je suis en mode démonstration. Une fois connecté à Supabase et GPT-4, je pourrai répondre à toutes tes questions sur Esechiel et ses services.",
-        sender: 'bot',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, botResponse]);
+      const botResponse = getBotResponse(userMessage);
+      setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
       setIsTyping(false);
-    }, 2000);
+    }, 1000);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
+  const getBotResponse = (message: string) => {
+    const responses = {
+      'services': 'Je propose du développement fullstack, création de SaaS, chatbots IA, intégration d\'APIs et consulting technique. Voulez-vous en savoir plus sur un service spécifique ?',
+      'tarifs': 'Mes tarifs varient selon la complexité du projet. Pour un devis personnalisé, contactez-moi directement via le formulaire. Je propose aussi des forfaits mensuels pour la maintenance.',
+      'disponibilité': 'Je suis actuellement disponible pour de nouveaux projets ! Mon planning est flexible. Contactez-moi pour discuter de vos besoins et timelines.',
+      'technologies': 'J\'utilise React, Next.js, Node.js, Python, Supabase, OpenAI API, Tailwind CSS et bien d\'autres technologies modernes. Quel type de projet avez-vous en tête ?'
+    };
+
+    for (const [key, response] of Object.entries(responses)) {
+      if (message.toLowerCase().includes(key) || message.toLowerCase().includes(response.substring(0, 10).toLowerCase())) {
+        return response;
+      }
     }
+
+    return 'Merci pour votre question ! Pour une réponse détaillée, je vous invite à me contacter directement via le formulaire. Esechiel sera ravi de discuter de votre projet personnellement. 🚀';
   };
 
-  if (!isOpen) {
-    return (
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          onClick={() => setIsOpen(true)}
-          className="rounded-full w-14 h-14 bg-primary hover:bg-primary-dark shadow-card-hover transition-smooth animate-bounce"
-        >
-          <MessageCircle className="w-6 h-6" />
-        </Button>
-        <Badge className="absolute -top-2 -left-2 bg-secondary text-secondary-foreground">
-          IA
-        </Badge>
-      </div>
-    );
-  }
+  const handleQuickQuestion = (question: string) => {
+    setInput(question);
+  };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-80 animate-scale-in">
-      <Card className="shadow-card-hover border-0">
-        <CardHeader className="bg-primary text-primary-foreground rounded-t-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Bot className="w-5 h-5" />
-              <CardTitle className="text-sm font-medium">Assistant IA</CardTitle>
-              <Badge variant="secondary" className="text-xs bg-secondary-light text-primary-foreground">
-                En ligne
-              </Badge>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsOpen(false)}
-              className="text-primary-foreground hover:bg-primary-dark"
-            >
-              <Minimize2 className="w-4 h-4" />
-            </Button>
-          </div>
-        </CardHeader>
+    <>
+      {/* Chatbot Trigger Button */}
+      <Button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary shadow-glow-primary text-primary-foreground font-bold text-xl animate-pulse-glow"
+      >
+        💬
+      </Button>
 
-        <CardContent className="p-0">
-          {/* Messages */}
-          <div className="h-64 overflow-y-auto p-4 space-y-4 bg-muted/20">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
-                    message.sender === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-card text-card-foreground shadow-sm'
-                  }`}
-                >
-                  <div className="flex items-start gap-2">
-                    {message.sender === 'bot' && <Bot className="w-4 h-4 mt-0.5 text-primary" />}
-                    {message.sender === 'user' && <User className="w-4 h-4 mt-0.5" />}
-                    <p>{message.text}</p>
+      {/* Chatbot Modal */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+          <Card className="w-full max-w-lg h-[600px] shadow-card-premium border-2 border-primary/20 bg-card/95 backdrop-blur-sm relative overflow-hidden">
+            {/* Header gradient */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary"></div>
+            
+            <CardHeader className="relative z-10 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold animate-pulse-glow">
+                    🤖
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground text-lg">Assistant IA</h3>
+                    <p className="text-sm text-muted-foreground">Esechiel Kouamé</p>
                   </div>
                 </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setIsOpen(false)}
+                  className="hover:bg-destructive/10 hover:text-destructive border-destructive/20"
+                >
+                  ✕
+                </Button>
               </div>
-            ))}
-            
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="bg-card text-card-foreground shadow-sm px-3 py-2 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Bot className="w-4 h-4 text-primary" />
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse"></div>
-                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+            </CardHeader>
+
+            <CardContent className="flex flex-col h-[calc(600px-80px)] p-0">
+              {/* Messages Area */}
+              <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gradient-to-b from-background/50 to-muted/20">
+                {messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-xs px-4 py-3 rounded-2xl shadow-card ${
+                        message.role === 'user'
+                          ? 'bg-gradient-to-r from-primary to-primary-dark text-primary-foreground ml-4'
+                          : 'bg-card border border-primary/20 mr-4 text-foreground'
+                      } animate-scale-in`}
+                      style={{animationDelay: `${index * 0.1}s`}}
+                    >
+                      <p className="text-sm leading-relaxed">{message.text}</p>
                     </div>
                   </div>
-                </div>
+                ))}
+                
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <div className="max-w-xs px-4 py-3 rounded-2xl bg-card border border-primary/20 mr-4 animate-pulse">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          {/* Input */}
-          <div className="p-4 border-t bg-background">
-            <div className="flex gap-2">
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Pose ta question..."
-                className="flex-1"
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isTyping}
-                className="bg-primary hover:bg-primary-dark"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              Intégré avec GPT-4 (prochainement)
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+              {/* Quick Questions */}
+              {messages.length === 1 && (
+                <div className="p-4 border-t border-primary/10 bg-muted/20">
+                  <p className="text-sm text-muted-foreground mb-3 font-medium">Questions rapides :</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {quickQuestions.map((question, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleQuickQuestion(question)}
+                        className="text-xs h-8 border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all duration-300"
+                      >
+                        {question}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Input Area */}
+              <div className="p-4 border-t border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5">
+                <div className="flex gap-2">
+                  <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                    placeholder="Tapez votre message..."
+                    className="flex-1 border-primary/30 focus:border-primary/50 bg-background/80 backdrop-blur-sm"
+                  />
+                  <Button 
+                    onClick={handleSendMessage}
+                    disabled={!input.trim() || isTyping}
+                    className="bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-primary-foreground shadow-glow-primary px-6"
+                  >
+                    🚀
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2 text-center">
+                  Assistant IA • Réponses instantanées
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </>
   );
 };
 
