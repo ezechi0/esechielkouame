@@ -34,7 +34,7 @@ const Hero = () => {
             </span>
             <br />
             <span className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-secondary-light to-primary-foreground bg-clip-text text-transparent">
-              Kouamé
+              Kouame
             </span>
           </h1>
           
