@@ -7,6 +7,23 @@ import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, MapPin, Calendar, Send, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+// Schema de validation pour le formulaire de contact
+const contactSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(2, { message: "Le nom doit contenir au moins 2 caractères" })
+    .max(100, { message: "Le nom ne peut pas dépasser 100 caractères" }),
+  email: z.string()
+    .trim()
+    .email({ message: "Adresse email invalide" })
+    .max(255, { message: "L'email ne peut pas dépasser 255 caractères" }),
+  message: z.string()
+    .trim()
+    .min(10, { message: "Le message doit contenir au moins 10 caractères" })
+    .max(1000, { message: "Le message ne peut pas dépasser 1000 caractères" })
+});
 
 const Contact = () => {
   const { toast } = useToast();
@@ -16,21 +33,20 @@ const Contact = () => {
     message: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
+    setErrors({});
+    
+    // Validation des données
     try {
+      const validatedData = contactSchema.parse(formData);
+      setIsSubmitting(true);
+
       const { error } = await supabase
         .from('contact_messages')
-        .insert([
-          {
-            name: formData.name,
-            email: formData.email,
-            message: formData.message
-          }
-        ]);
+        .insert([validatedData]);
 
       if (error) {
         throw error;
@@ -43,22 +59,40 @@ const Contact = () => {
       
       setFormData({ name: "", email: "", message: "" });
     } catch (error) {
-      console.error('Error sending message:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'envoi. Veuillez réessayer.",
-        variant: "destructive"
-      });
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.issues.forEach((issue) => {
+          if (issue.path[0]) {
+            fieldErrors[issue.path[0] as string] = issue.message;
+          }
+        });
+        setErrors(fieldErrors);
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Une erreur est survenue lors de l'envoi. Veuillez réessayer.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+    
+    // Effacer l'erreur quand l'utilisateur commence à taper
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: ""
+      });
+    }
   };
 
   return (
@@ -135,8 +169,11 @@ const Contact = () => {
                   </p>
                   <Button
                     onClick={() => {
-                      // @ts-ignore - Calendly is loaded via external script
-                      window.Calendly?.initPopupWidget({url: 'https://calendly.com/ezechielkouame87/nouvelle-reunion'});
+                      if (typeof window !== 'undefined' && (window as any).Calendly) {
+                        (window as any).Calendly.initPopupWidget({url: 'https://calendly.com/ezechielkouame/30min'});
+                      } else {
+                        window.open('https://calendly.com/ezechielkouame/30min', '_blank', 'noopener,noreferrer');
+                      }
                     }}
                     className="bg-secondary hover:bg-secondary/80 text-secondary-foreground shadow-card"
                   >
@@ -169,8 +206,11 @@ const Contact = () => {
                       onChange={handleInputChange}
                       placeholder="Votre nom"
                       required
-                      className="transition-smooth focus:ring-primary"
+                      className={`transition-smooth focus:ring-primary ${errors.name ? 'border-destructive' : ''}`}
                     />
+                    {errors.name && (
+                      <p className="text-destructive text-sm mt-1">{errors.name}</p>
+                    )}
                   </div>
 
                   <div>
@@ -185,8 +225,11 @@ const Contact = () => {
                       onChange={handleInputChange}
                       placeholder="votre@email.com"
                       required
-                      className="transition-smooth focus:ring-primary"
+                      className={`transition-smooth focus:ring-primary ${errors.email ? 'border-destructive' : ''}`}
                     />
+                    {errors.email && (
+                      <p className="text-destructive text-sm mt-1">{errors.email}</p>
+                    )}
                   </div>
 
                   <div>
@@ -201,8 +244,11 @@ const Contact = () => {
                       placeholder="Décrivez votre projet ou posez votre question..."
                       rows={5}
                       required
-                      className="transition-smooth focus:ring-primary resize-none"
+                      className={`transition-smooth focus:ring-primary resize-none ${errors.message ? 'border-destructive' : ''}`}
                     />
+                    {errors.message && (
+                      <p className="text-destructive text-sm mt-1">{errors.message}</p>
+                    )}
                   </div>
 
                   <Button
