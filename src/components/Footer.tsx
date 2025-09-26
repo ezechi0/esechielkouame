@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           {/* Logo et description */}
           <div>
-            <h3 className="text-2xl font-bold mb-4">Esechiel Kouamé</h3>
+            <h3 className="text-2xl font-bold mb-4">Esechiel Kouame</h3>
             <p className="text-primary-foreground/80 leading-relaxed">
               Développeur Fullstack & Spécialiste IA passionné par l'innovation 
               et la création de solutions technologiques impactantes.
@@ -72,7 +72,7 @@ const Footer = () => {
         <div className="border-t border-primary-foreground/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-primary-foreground/60 text-sm">
-              © {currentYear} Esechiel Kouamé. Tous droits réservés.
+              © {currentYear} Esechiel Kouame. Tous droits réservés.
             </p>
             <div className="flex gap-6 text-sm text-primary-foreground/60">
               <button 

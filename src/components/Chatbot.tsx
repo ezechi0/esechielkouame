@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,6 +11,7 @@ const Chatbot = () => {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [sessionId] = useState(() => Math.random().toString(36).substr(2, 9));
 
   const quickQuestions = [
     "Quels sont vos services ?",
@@ -27,10 +29,25 @@ const Chatbot = () => {
     setIsTyping(true);
 
     // Simulate API call - replace with real GPT-4 integration
-    setTimeout(() => {
+    setTimeout(async () => {
       const botResponse = getBotResponse(userMessage);
       setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);
       setIsTyping(false);
+
+      // Store conversation in Supabase
+      try {
+        await supabase
+          .from('chatbot_conversations')
+          .insert([
+            {
+              session_id: sessionId,
+              message: userMessage,
+              response: botResponse
+            }
+          ]);
+      } catch (error) {
+        console.error('Error storing conversation:', error);
+      }
     }, 1000);
   };
 
@@ -80,7 +97,7 @@ const Chatbot = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-foreground text-lg">Assistant IA</h3>
-                    <p className="text-sm text-muted-foreground">Esechiel Kouamé</p>
+                    <p className="text-sm text-muted-foreground">Esechiel Kouame</p>
                   </div>
                 </div>
                 <Button 

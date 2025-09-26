@@ -1,34 +1,49 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Projects = () => {
-  const projects = [
-    {
-      title: 'Growest Connect',
-      description: 'Plateforme SaaS révolutionnaire connectant investisseurs et fondateurs avec matching IA',
-      tags: ['React', 'Node.js', 'IA', 'SaaS'],
-      link: 'https://growest-connect.vercel.app',
-      status: 'Live',
-      gradient: 'from-blue-600 to-purple-600'
-    },
-    {
-      title: 'Willy Assurance',
-      description: 'Votre partenaire de confiance pour l\'assurance auto et moto en Côte d\'Ivoire avec devis instantané',
-      tags: ['Next.js', 'Tailwind', 'API', 'Finance'],
-      link: 'https://willy-assurance-ivory.vercel.app',
-      status: 'Live',
-      gradient: 'from-green-600 to-teal-600'
-    },
-    {
-      title: 'ONG Ciel Ouvert',
-      description: 'Plateforme d\'accompagnement pour orphelins, veufs et familles démunies vers un avenir meilleur',
-      tags: ['React', 'Supabase', 'Humanitaire', 'Impact'],
-      link: 'https://ongcielouvert.vercel.app',
-      status: 'Live',
-      gradient: 'from-orange-600 to-red-600'
-    }
-  ];
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching projects:', error);
+          return;
+        }
+
+        setProjects(data || []);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  if (loading) {
+    return (
+      <section id="projects" className="py-24 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Chargement des projets...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="projects" className="py-24 bg-background relative overflow-hidden">
@@ -57,13 +72,13 @@ const Projects = () => {
               style={{animationDelay: `${index * 0.2}s`}}
             >
               {/* Card gradient overlay */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
               
               {/* Floating status badge */}
               <div className="absolute top-4 right-4 z-20">
-                <Badge className="bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground font-bold px-3 py-1 shadow-glow-secondary animate-pulse-glow">
-                  {project.status}
-                </Badge>
+                 <Badge className="bg-gradient-to-r from-secondary to-secondary-light text-secondary-foreground font-bold px-3 py-1 shadow-glow-secondary animate-pulse-glow">
+                   {project.featured ? 'Featured' : 'Projet'}
+                 </Badge>
               </div>
 
               <CardHeader className="relative z-10">
@@ -80,7 +95,7 @@ const Projects = () => {
 
               <CardContent className="relative z-10 pt-0">
                 <div className="flex flex-wrap gap-2 mb-6">
-                  {project.tags.map((tag, tagIndex) => (
+                  {project.technologies?.map((tag: string, tagIndex: number) => (
                     <Badge 
                       key={tagIndex}
                       variant="outline"
@@ -96,7 +111,7 @@ const Projects = () => {
                   className="w-full group/btn bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-primary-foreground font-bold py-3 shadow-glow-primary relative overflow-hidden"
                 >
                   <a 
-                    href={project.link} 
+                    href={project.demo_url || project.github_url || '#'} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="relative z-10"

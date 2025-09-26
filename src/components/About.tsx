@@ -45,7 +45,7 @@ const About = () => {
               <div className="relative">
                 <img 
                   src={profilePhoto} 
-                  alt="Esechiel Kouamé - Développeur Fullstack"
+                  alt="Esechiel Kouame - Développeur Fullstack"
                   className="w-72 h-72 rounded-full object-cover shadow-card-premium mx-auto lg:mx-0 transition-transform duration-500 group-hover:scale-105 border-4 border-primary-foreground/20"
                 />
                 <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-gradient-to-br from-secondary to-secondary-light rounded-full border-4 border-background shadow-glow-secondary animate-pulse-glow flex items-center justify-center">
@@ -57,7 +57,7 @@ const About = () => {
             
             <div className="space-y-6">
               <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">
-                Esechiel <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Kouamé</span>
+                Esechiel <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Kouame</span>
               </h3>
               <p className="text-muted-foreground leading-relaxed text-lg max-w-lg mx-auto lg:mx-0">
                 Développeur fullstack passionné par l'innovation technologique. 

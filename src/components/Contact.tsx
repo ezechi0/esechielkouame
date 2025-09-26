@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, MapPin, Calendar, Send, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -20,15 +21,37 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission (will be replaced with Supabase integration)
-    setTimeout(() => {
+    try {
+      const { error } = await supabase
+        .from('contact_messages')
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            message: formData.message
+          }
+        ]);
+
+      if (error) {
+        throw error;
+      }
+
       toast({
         title: "Message envoyé !",
         description: "Je vous répondrai dans les plus brefs délais.",
       });
+      
       setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'envoi. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -113,7 +136,7 @@ const Contact = () => {
                     height="500"
                     frameBorder="0"
                     className="rounded-lg"
-                    title="Planifier un rendez-vous avec Esechiel Kouamé"
+                    title="Planifier un rendez-vous avec Esechiel Kouame"
                   ></iframe>
                 </div>
               </CardContent>
