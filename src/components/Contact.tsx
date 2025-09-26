@@ -102,16 +102,19 @@ const Contact = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-secondary">
                   <Calendar className="w-5 h-5" />
-                  Planifier un appel
+                  Planifier un rendez-vous
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="bg-muted/50 rounded-lg p-8 text-center">
-                  <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground mb-4">
-                    Calendly sera intégré ici pour planifier facilement nos échanges
-                  </p>
-                  <Badge variant="outline">Intégration Calendly - Prochainement</Badge>
+                <div className="w-full">
+                  <iframe 
+                    src="https://calendly.com/ezechielkouame87/nouvelle-reunion"
+                    width="100%"
+                    height="500"
+                    frameBorder="0"
+                    className="rounded-lg"
+                    title="Planifier un rendez-vous avec Esechiel Kouamé"
+                  ></iframe>
                 </div>
               </CardContent>
             </Card>
